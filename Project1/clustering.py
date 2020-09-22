@@ -16,18 +16,16 @@ def K_Means(X,K,mu):
     iterations =300
     for i in range(iterations):
         # classify based on the minimum distance.
-        classifications = np.argmin(((X[:, :, None] - mu.T[None, :, :])**2).sum(axis=1), axis=1)
+        clustering = np.argmin(((X[:, :, None] - mu.T[None, :, :])**2).sum(axis=1), axis=1)
         # next, calculate the new centers for each cluster.
-        new_mu = np.array([X[classifications == j, :].mean(axis=0) for j in range(K)])
+        new_mu = np.array([X[clustering == j, :].mean(axis=0) for j in range(K)])
 
         if (new_mu == mu).all():
             break
         else:
             mu = new_mu
-
-          
-    mu = np.array(mu , dtype=int)
     return mu
+    
     
 
 def K_Means_better(X, K):
@@ -40,9 +38,9 @@ def K_Means_better(X, K):
     count = 0
     for i in range(iterations):
         # calculating minimum distance and clustering
-        classifications = np.argmin(((X[:, :, None] - mu.T[None, :, :])**2).sum(axis=1), axis=1)
-        # averaging to find new cluster centers
-        new_mu = np.array([X[classifications == j, :].mean(axis=0) for j in range(K)])
+        clustering = np.argmin(((X[:, :, None] - mu.T[None, :, :])**2).sum(axis=1), axis=1)
+        # next, calculate the new centers for each cluster.
+        new_mu = np.array([X[clustering == j, :].mean(axis=0) for j in range(K)])
         
         #performing several iterations to get the best mu
         if (new_mu == mu).all():
