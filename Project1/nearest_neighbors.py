@@ -110,7 +110,7 @@ def choose_K(X_train,Y_train,X_test,Y_test):
 
 		Acc=(TP + TN)/float(TP + TN + FP + FN)
 		acc.append(Acc)
-		print(Acc)
+		
 		accmax=np.where(acc==np.max(acc))+np.ones(len(np.where(acc==np.min(acc))))
 
 	return(accmax)
