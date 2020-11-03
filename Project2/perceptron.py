@@ -36,6 +36,6 @@ def perceptron_test(X,Y,w,b):
         labels.append(test(data, label, weights))
     
     for i in range(len(Y)):                 #calculate accuracy 
-		if Y[i] == labels[i]:
-			correct += 1  	
+        if Y[i] == labels[i]:
+            correct += 1  	
     return correct / float(len(Y))
