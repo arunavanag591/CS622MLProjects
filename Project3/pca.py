@@ -4,36 +4,35 @@ import numpy as np
 import sys
 
 
-def compute_Z(X, centering=True, scaling=False):
-    rows, columns = X.shape
+def compute_Z(arr, centering=True, scaling=False):
+    rows, columns = arr.shape
     Z_mat = np.zeros(shape=(rows, columns))
     tempArray = np.zeros(rows)
     for column in range(columns):        
-        mean = np.mean(X[:,column])
-        std = np.std(X[:,column])
+        mean = np.mean(arr[:,column])
+        std = np.std(arr[:,column])
         tempArray = np.empty(0)
         
         if (centering == True):
-            # print("Centering\n")
-            for element in X[:,column]:
+            for element in arr[:,column]:
                 tempArray = np.append(tempArray, (element - mean))
         elif (scaling == True):
-            # print("Scaling\n")
-            for element in X[:,column]:
+            for element in arr[:,column]:
                 tempArray = np.append(tempArray, (element / std))
 
     Z_mat[:,column] = tempArray
     return Z_mat
 
 def compute_covariance_matrix(Z):
-    return np.cov(Z.T)
+    cov = np.cov(Z.T) / Z.shape[0]
+    return cov
     
 def find_pcs(COV):
     L, PCS = np.linalg.eig(COV)
     #sort in descending
     idx = L.argsort()[::-1]
     L = L[idx] 
-    PCS = PCS[:,idx]    
+    PCS = PCS[:,idx]
     #PCS_norm = (PCS/np.linalg.norm(PCS))
     return L, PCS
 

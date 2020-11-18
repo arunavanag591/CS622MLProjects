@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 
 
 def getWB(vectors):
+    #TODO: put negative class in specific position and same for positive
     rows,column = vectors.shape
     arr = np.zeros(shape=(rows,2))
     arr[:, 0], arr[:, 1] = vectors[:, 0], vectors[:, 1]
@@ -36,10 +37,6 @@ def svm_train_brute(data):
     
     rows, columns = data.shape 
     points = np.zeros(shape=(rows, 2))
-    points_pos=np.zeros(shape=(5,2))
-    points_neg=np.zeros(shape=(5,2))
-    points_pos[:, 0], points_pos[:, 1] = data[0:5, 0], data[0:5, 1]
-    points_neg[:, 0], points_neg[:, 1] = data[5:10, 0], data[5:10, 1]
     points[:, 0], points[:, 1] = data[:, 0], data[:, 1] #list containing only features
     dist = closestpoints(points)
     
