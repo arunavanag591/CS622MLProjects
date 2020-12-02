@@ -8,11 +8,33 @@ import sys
 import os
 import random
 
-
 def generate_vocab(dir, min_count, max_files):
-  fnum=int(max_files/2) 
-  fpos = random.sample(os.listdir(dir+"/pos"), fnum)
-  fneg = random.sample(os.listdir(dir+"/neg"), fnum)
+  if(max_files == -1):
+    #count all files
+    path, dirs, pos = next(os.walk(dir+"/pos"))
+    path, dirs, neg = next(os.walk(dir+"/neg"))
+  
+    #check which directory has more number of files
+    if (len(pos)) > (len(neg)):
+      mx_files = len(neg)
+    else:
+      mx_files = len(pos)
+    
+    #check if even number of files
+    if (mx_files % 2) == 0:
+      fnum = mx_files
+    else:
+      fnum = mx_files-1  
+
+    fpos = random.sample(os.listdir(dir+"/pos"), fnum)
+    fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
+  
+  else:
+    fnum = int(max_files/2) 
+    fpos = random.sample(os.listdir(dir+"/pos"), fnum)
+    fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
+  
+  
   vocab = []
   for filename in fpos:
     with open(dir+"/pos/"+filename) as f:
@@ -28,23 +50,21 @@ def generate_vocab(dir, min_count, max_files):
   for sets in vocab:
     for item in sets:
         vocab_flat.append(item)
+
   #remove special characters and break elements
   result = ["".join(list(filter(str.isalnum, line))) for line in vocab_flat]
   while 'br' in result: result.remove('br')  
 
-  vocab_filtered = []
-  # for i in range (len(result)):
-  vocab_filtered.append(set(word for word in set(result) if result.count(word) == 1))
-  print(len(vocab_filtered))
-  print(vocab_filtered)
-
-
-  # print('\n')
-  # print(result)  
-  # print(len(vocab_flat))
-  # print(vocab_flat)
+  # method slower, higher time complexity
+  # vocab_filtered = [ e for e in result if result.count(e) >= min_count]
+  # print(len(vocab_filtered))
   
-
+  # method faster
+  from collections import Counter
+  count_dict = Counter(result)
+  vocab_filtered = [el for el in result if count_dict[el]>=min_count]
+  
+  return vocab_filtered
   
   
   
