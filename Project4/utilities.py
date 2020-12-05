@@ -2,11 +2,14 @@
 #Arunava Nag; CS 622 Project 4
 #!/usr/bin/env python
 
-import numpy
+import numpy as np
 import sklearn
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 import os
 import random
+
 
 def generate_vocab(dir, min_count, max_files):
   if(max_files == -1):
@@ -26,14 +29,21 @@ def generate_vocab(dir, min_count, max_files):
     else:
       fnum = mx_files-1  
 
-    fpos = random.sample(os.listdir(dir+"/pos"), fnum)
-    fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
+    # fpos = random.sample(os.listdir(dir+"/pos"), fnum)
+    # fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
+    #picking first fnum files for consistency
+    fpos = os.listdir(dir+"/pos")[:fnum]
+    fneg = os.listdir(dir+"/neg")[:fnum] 
   
   else:
     fnum = int(max_files/2) 
-    fpos = random.sample(os.listdir(dir+"/pos"), fnum)
-    fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
-  
+    # picking random files
+    # fpos = random.sample(os.listdir(dir+"/pos"), fnum)
+    # fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
+    
+    #picking first fnum files for consistency
+    fpos = os.listdir(dir+"/pos")[:fnum]
+    fneg = os.listdir(dir+"/neg")[:fnum] 
   
   vocab = []
   for filename in fpos:
@@ -57,18 +67,50 @@ def generate_vocab(dir, min_count, max_files):
 
   # method slower, higher time complexity
   # vocab_filtered = [ e for e in result if result.count(e) >= min_count]
-  # print(len(vocab_filtered))
   
   # method faster
   from collections import Counter
   count_dict = Counter(result)
   vocab_filtered = [el for el in result if count_dict[el]>=min_count]
   
-  return vocab_filtered
+  # final_vocab = list(dict.fromkeys(vocab_filtered))
+  final_vocab = list(set(vocab_filtered))
+  return final_vocab
   
-  
-  
-# def create_word_vector(fname, vocab):
+
+def create_word_vector(fname, vocab):
+  # create vectorizer
+  cv = CountVectorizer()
+  # fit over the vocabulary
+  X = cv.fit_transform(vocab)
+
+  with open(fname) as f:
+    # read lines
+    lines = f.readlines()
+    # create vector on new file
+    count_list = cv.transform(lines).toarray()
+
+  return count_list
 
 
-# def load_data(dir, vocab, max_files):
+
+def load_data(dir, vocab, max_files):
+  
+  fnum = int(max_files/2)
+  fpos = os.listdir(dir+"/pos")[:fnum]
+  fneg = os.listdir(dir+"/neg")[:fnum] 
+
+  # for printing without truncation
+  # nums = np.arange(2000)
+  # np.set_printoptions(threshold=sys.maxsize)
+
+
+  positive_vector = []
+  for filename in fpos:
+      positive_vector.append(create_word_vector((dir+"/pos/"+filename), vocab))
+  
+  negative_vector = []
+  for filename in fneg:
+    negative_vector.append(create_word_vector((dir+"/neg/"+filename), vocab))
+  
+  return positive_vector, negative_vector
