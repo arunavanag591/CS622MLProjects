@@ -80,7 +80,9 @@ def generate_vocab(dir, min_count, max_files):
 
 def create_word_vector(fname, vocab):
   # create vectorizer
-  cv = CountVectorizer()
+  # lamba txt splits every case at space as a word, this includes 
+  # all single letter word as I, a to be included as well
+  cv = CountVectorizer(tokenizer=lambda txt: txt.split())
   # fit over the vocabulary
   X = cv.fit_transform(vocab)
 
@@ -103,8 +105,7 @@ def load_data(dir, vocab, max_files):
   # for printing without truncation
   # nums = np.arange(2000)
   # np.set_printoptions(threshold=sys.maxsize)
-
-
+  
   positive_vector = []
   for filename in fpos:
       positive_vector.append(create_word_vector((dir+"/pos/"+filename), vocab))
@@ -113,4 +114,9 @@ def load_data(dir, vocab, max_files):
   for filename in fneg:
     negative_vector.append(create_word_vector((dir+"/neg/"+filename), vocab))
   
+  # test vectorizer
+  # cv = CountVectorizer(tokenizer=lambda txt: txt.split())
+  # X = cv.fit_transform(['Delhi', 'delhi', 'orange', 'Orange', 'a', 'love', 'And'])
+  # count_list = cv.transform(['a LOVE Delhi and Orange']).toarray()
+  # print(count_list)
   return positive_vector, negative_vector
