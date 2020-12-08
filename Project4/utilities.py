@@ -114,9 +114,14 @@ def load_data(dir, vocab, max_files):
   for filename in fneg:
     negative_vector.append(create_word_vector((dir+"/neg/"+filename), vocab))
   
+  X = positive_vector + negative_vector
+  pos_labels = np.ones(fnum)
+  neg_labels = np.ones(fnum)*-1
+  Y = np.concatenate((pos_labels,neg_labels), axis = None)
+
   # test vectorizer
   # cv = CountVectorizer(tokenizer=lambda txt: txt.split())
   # X = cv.fit_transform(['Delhi', 'delhi', 'orange', 'Orange', 'a', 'love', 'And'])
   # count_list = cv.transform(['a LOVE Delhi and Orange']).toarray()
   # print(count_list)
-  return positive_vector, negative_vector
+  return X, Y
