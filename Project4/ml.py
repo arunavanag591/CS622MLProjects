@@ -6,9 +6,15 @@ import numpy as np
 from sklearn.decomposition import PCA
 from sklearn.tree import DecisionTreeClassifier as dt
 from sklearn import tree
-from sklearn.metrics import f1_score
-from sklearn.metrics import precision_score
 from sklearn.cluster import KMeans
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.linear_model import Perceptron
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
+# from sklearn.metrics import f1_score
+# from sklearn.metrics import precision_score
+# from sklearn.metrics import precision_recall_fscore_support
+# from sklearn.metrics import accuracy_score
 import sys
 import os
 import random
@@ -16,29 +22,31 @@ import random
 
 def dt_train(X,Y):
   clf_dt = dt()
-  # print(type(X))
-  if isinstance(X, PCA):
-    # X = X.explained_variance_ratio_
-    #X = X.explained_variance_ratio_.reshape(-1,1)
-    # print(X.ndim)
-    # print(X[0])
-    clf_dt = clf_dt.fit(X.components_, Y)
-  else:
-    clf_dt = clf_dt.fit(X,Y)
+  clf_dt = clf_dt.fit(X,Y)
 
   # command line tree display
   # text_representation = tree.export_text(clf_dt)
   # print(text_representation)
   return clf_dt
 
-
 def kmeans_train(X):
   kmeans = KMeans(n_clusters=2).fit(X)
   return kmeans
-# def knn_train(X,Y,K):
-# def perceptron_train(X,Y):
-# def nn_train(X,Y, hls):
 
+def knn_train(X,Y,K):
+  clf = KNeighborsClassifier(n_neighbors=K)
+  knn = clf.fit(X,Y)
+  return knn
+
+def perceptron_train(X,Y):
+  clf = Perceptron(tol=1e-3, random_state=0)
+  ppn_train = clf.fit(X,Y)
+  return ppn_train
+
+def nn_train(X,Y, hls):
+  clf = MLPClassifier(solver='lbfgs', alpha=1e-3, hidden_layer_sizes=hls, random_state=1)
+  nnt = clf.fit(X,Y)
+  return nnt
 
 def pca_train(X,K):
   pca = PCA(n_components=K)
@@ -50,50 +58,46 @@ def pca_transform(X,pca):
   #fiting data with learned values
   p = PCA()
   X_tf = p.fit(X,learned_val)
-  # print((X_tf.components_).ndim)
-  #print(X_tf.explained_variance_ratio_)
   return X_tf.components_
 
 
-# def svm_train(X,Y,k):
+def svm_train(X,Y,k):
+  clf = SVC(kernel=k)
+  svm = clf.fit(X,Y)
+  return svm
 
 def model_test(X,model):
-  #print(model)
-  # if isinstance(model, tree.DecisionTreeClassifier):
-  #   # X = X.explained_variance_ratio_
-  #   # X = X.explained_variance_ratio_.reshape(-1,1)
-  #   clf = model.predict(X.components_) 
-  # else:
-  #   clf = model.predict(X)
   clf = model.predict(X)
   return clf
-
   
 def compute_F1(Y, Y_hat):
-  # F1 = precision_score(Y, Y_hat, average=None, zero_division=1)
-  TP = 0
-  TN = 0
-  FP = 0
-  FN = 0
+  TP = 0  #true positive
+  FP = 0  #false positive
+  FN = 0  #false negative
+  
+  # replacing zeros with -1 for later calculation
   for i in range(len(Y_hat)):
     if(Y_hat[i] == 0):
       Y_hat[i] = -1
-
-
-  # print (Y_hat)
+  
+  # calculate TP, FP, FN
   for i in range(len(Y)):
     if Y[i] == 1 and Y[i] == Y_hat[i]:
       TP = TP + 1 
-    elif Y[i] == -1 and Y[i] == Y_hat[i]:
-      TN = TN + 1
     elif Y[i] == 1 and Y[i]!=Y_hat[i]:
       FP = FP + 1
-    elif Y[i] == -1 and Y[i] == Y_hat[i]:
+    elif Y[i] == -1 and Y[i] != Y_hat[i]:
       FN = FN + 1
 
-  P = TP / (TP+FP)
-  R = TP / (TP+FN)
-  F1 = (2*P*R)/(P+R)
+  Precision = TP / (TP+FP)
+  Recall = TP / (TP+FN)
+  # F1-measure
+  F1 = (2 * Precision * Recall)/(Precision + Recall)
+
+  # F1 = precision_recall_fscore_support(Y, Y_hat, average='binary')
+  # F1 = accuracy_score(Y, Y_hat)
+  # F1 = precision_score(Y, Y_hat, average='weighted')
+  
   return F1
  
 

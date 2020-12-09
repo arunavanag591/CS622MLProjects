@@ -5,17 +5,15 @@
 import numpy as np
 import sklearn
 from sklearn.feature_extraction.text import CountVectorizer
-import sys
 import os
 import random
 
-
-def generate_vocab(dir, min_count, max_files):
+def generate_files(dir, max_files):
   if(max_files == -1):
-    #count all files
+    # count all files
     path, dirs, pos = next(os.walk(dir+"/pos"))
     path, dirs, neg = next(os.walk(dir+"/neg"))
-  
+
     #check which directory has more number of files
     if (len(pos)) > (len(neg)):
       mx_files = len(neg)
@@ -30,19 +28,27 @@ def generate_vocab(dir, min_count, max_files):
 
     # fpos = random.sample(os.listdir(dir+"/pos"), fnum)
     # fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
-    #picking first fnum files for consistency
+    
+    # picking first fnum files for consistency
     fpos = os.listdir(dir+"/pos")[:fnum]
     fneg = os.listdir(dir+"/neg")[:fnum] 
-  
+
   else:
     fnum = int(max_files/2) 
     # picking random files
     # fpos = random.sample(os.listdir(dir+"/pos"), fnum)
     # fneg = random.sample(os.listdir(dir+"/neg"), fnum) 
     
-    #picking first fnum files for consistency
+    # picking first fnum files for consistency
+  
     fpos = os.listdir(dir+"/pos")[:fnum]
     fneg = os.listdir(dir+"/neg")[:fnum] 
+
+  return fpos, fneg
+
+def generate_vocab(dir, min_count, max_files):
+
+  fpos , fneg = generate_files(dir, max_files)
   
   vocab = []
   for filename in fpos:
@@ -96,11 +102,9 @@ def create_word_vector(fname, vocab):
 
 
 def load_data(dir, vocab, max_files):
+  fnum =int(max_files/2)
   
-  fnum = int(max_files/2)
-  fpos = os.listdir(dir+"/pos")[:fnum]
-  fneg = os.listdir(dir+"/neg")[:fnum] 
-
+  fpos, fneg = generate_files(dir, max_files)
   # for printing without truncation
   # nums = np.arange(2000)
   # np.set_printoptions(threshold=sys.maxsize)
@@ -117,10 +121,15 @@ def load_data(dir, vocab, max_files):
   pos_labels = np.ones(fnum)
   neg_labels = np.ones(fnum)*-1
   Y = np.concatenate((pos_labels,neg_labels), axis = None)
-
+  
+  # converting list to numpy array for sklearn use in ml.py
+  X = np.array(X)
+  # converting dimensionality of input array for sklearn to work
+  nsamples, nx, ny = X.shape
+  dataset_ = X.reshape((nsamples,nx*ny))
   # test vectorizer
   # cv = CountVectorizer(tokenizer=lambda txt: txt.split())
   # X = cv.fit_transform(['Delhi', 'delhi', 'orange', 'Orange', 'a', 'love', 'And'])
   # count_list = cv.transform(['a LOVE Delhi and Orange']).toarray()
   # print(count_list)
-  return X, Y
+  return dataset_, Y
