@@ -5,7 +5,6 @@
 import numpy as np
 import sklearn
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.feature_extraction.text import TfidfVectorizer
 import sys
 import os
 import random
